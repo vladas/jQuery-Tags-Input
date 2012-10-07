@@ -96,7 +96,8 @@ option to false.
 	   'onRemoveTag':callback_function,
 	   'onChange' : callback_function,
 	   'removeWithBackspace' : true,
-	   'minChars' : 0,
-	   'maxChars' : 0 //if not provided there is no limit,
+	   'minChars' : 0, // min tag length
+	   'maxChars' : 0 // max tag length, if not provided there is no limit,
+	   'maxTotalChars' : 0 //max input length, if not provided there is no limit,
 	   'placeholderColor' : '#666666'
 	});

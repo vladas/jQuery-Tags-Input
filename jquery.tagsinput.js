@@ -173,6 +173,21 @@
 		$('#'+id+'_tagsinput .tag').remove();
 		$.fn.tagsInput.importTags(this,str);
 	}
+    
+    $.fn.isValidInputEvent = function(event) {
+        if (event.data.minChars > $(event.data.fake_input).val().length) {
+            return false;
+        }
+        if (event.data.maxChars && (event.data.maxChars >= $(event.data.fake_input).val().length)) {
+            return false;
+        }
+        var realValue = $(event.data.real_input).val() + event.data.delimiter + $(event.data.fake_input).val();
+        if (event.data.maxTotalChars && (event.data.maxTotalChars < realValue.length)) {
+            return false;
+        }
+        
+        return true;
+    }
 		
 	$.fn.tagsInput = function(options) { 
     var settings = jQuery.extend({
@@ -278,9 +293,8 @@
 						// this is only available if autocomplete is not used.
 						$(data.fake_input).bind('blur',data,function(event) { 
 							var d = $(this).attr('data-default');
-							if ($(event.data.fake_input).val()!='' && $(event.data.fake_input).val()!=d) { 
-								if( (event.data.minChars <= $(event.data.fake_input).val().length) && (!event.data.maxChars || (event.data.maxChars >= $(event.data.fake_input).val().length)) )
-									$(event.data.real_input).addTag($(event.data.fake_input).val(),{focus:true,unique:(settings.unique)});
+							if ($(event.data.fake_input).val()!='' && $(event.data.fake_input).val()!=d && $.fn.isValidInputEvent(event)) { 
+								$(event.data.real_input).addTag($(event.data.fake_input).val(),{focus:true,unique:(settings.unique)});
 							} else {
 								$(event.data.fake_input).val($(event.data.fake_input).attr('data-default'));
 								$(event.data.fake_input).css('color',settings.placeholderColor);
@@ -293,8 +307,9 @@
 				$(data.fake_input).bind('keypress',data,function(event) {
 					if (event.which==event.data.delimiter.charCodeAt(0) || event.which==13 ) {
 					    event.preventDefault();
-						if( (event.data.minChars <= $(event.data.fake_input).val().length) && (!event.data.maxChars || (event.data.maxChars >= $(event.data.fake_input).val().length)) )
-							$(event.data.real_input).addTag($(event.data.fake_input).val(),{focus:true,unique:(settings.unique)});
+						if ($.fn.isValidInputEvent(event)) {
+                                                    $(event.data.real_input).addTag($(event.data.fake_input).val(),{focus:true,unique:(settings.unique)});
+                                                }
 					  	$(event.data.fake_input).resetAutosize(settings);
 						return false;
 					} else if (event.data.autosize) {
